@@ -82,5 +82,7 @@ module = [
     "tiktoken.*",
     "torch",
     "transformers",
+    "coverage",
+    "coverage.misc",
 ]
 ignore_missing_imports = true
