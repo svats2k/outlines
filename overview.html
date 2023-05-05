@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>🌎 Overview</title>
+    <title>🌎 Hello world</title>
   
   
   
@@ -131,7 +131,7 @@
     <div class="bd-toc-item navbar-nav active">
         <ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">✨ Installation</a></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">🌎 Overview</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">🌎 Hello world</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Outlines</span></p>
 <ul class="nav bd-sidenav">
@@ -279,7 +279,7 @@ document.write(`
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>🌎 Overview</h1>
+    <h1>🌎 Hello world</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -293,8 +293,32 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article" role="main">
                   
-  <section id="overview">
-<h1>🌎 Overview<a class="headerlink" href="#overview" title="Permalink to this heading">#</a></h1>
+  <section id="hello-world">
+<h1>🌎 Hello world<a class="headerlink" href="#hello-world" title="Permalink to this heading">#</a></h1>
+<p>Here is a simple Outlines program that highlights some of its key features:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">outlines.text</span> <span class="k">as</span> <span class="nn">text</span>
+<span class="kn">import</span> <span class="nn">outlines.models</span> <span class="k">as</span> <span class="nn">models</span>
+
+
+<span class="nd">@text</span><span class="o">.</span><span class="n">prompt</span>
+<span class="k">def</span> <span class="nf">where_from</span><span class="p">(</span><span class="n">expression</span><span class="p">):</span>
+     <span class="s2">&quot;What&#39;s the origin of &#39;{{ expression }}&#39;?&quot;</span>
+
+
+<span class="n">complete</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">text_completion</span><span class="o">.</span><span class="n">openai</span><span class="p">(</span><span class="s2">&quot;text-davinci-003&quot;</span><span class="p">)</span>
+
+<span class="n">hello_world</span> <span class="o">=</span> <span class="n">where_from</span><span class="p">(</span><span class="s2">&quot;Hello world&quot;</span><span class="p">)</span>
+<span class="n">foobar</span> <span class="o">=</span> <span class="n">where_from</span><span class="p">(</span><span class="s2">&quot;Foo Bar&quot;</span><span class="p">)</span>
+<span class="n">answer</span> <span class="o">=</span> <span class="n">complete</span><span class="p">([</span><span class="n">hello_world</span><span class="p">,</span> <span class="n">foobar</span><span class="p">],</span> <span class="n">num_samples</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">stop_at</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;.&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><strong>Prompt management</strong>. You can use functions with the <code class="docutils literal notranslate"><span class="pre">&#64;outlines.text.prompt</span></code> decorator. “Prompt functions” use the <a class="reference external" href="https://jinja.palletsprojects.com/en/3.1.x/">Jinja templating language</a> to render the prompt written in the docstring. We also added a few filters to help with common worflows, like building agents. Of course, for simple prompts, you can also use Python strings directly.</p></li>
+<li><p><strong>Generative model integration</strong>. You can use text completion models from OpenAI and HuggingFace, but models are not limited to text.</p></li>
+<li><p><strong>Controlled generation</strong>. The <code class="docutils literal notranslate"><span class="pre">stop_at</span></code> keyword arguments allows to define when the generation should be stopped. Outlines includes more options to control the generation; these happen on a token basis, saving time and costs.</p></li>
+<li><p><strong>Sampling</strong>. Outlines exclusively generates sequences using sampling. You can generate many samples with one call.</p></li>
+<li><p><strong>Batching</strong>. Models can take a list of prompt as input and generate completions in parallel.</p></li>
+</ul>
 </section>
 
 

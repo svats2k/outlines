@@ -45,7 +45,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'installation';</script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="🌎 Overview" href="overview.html" />
+    <link rel="next" title="🌎 Hello world" href="overview.html" />
     <link rel="prev" title="👋 Welcome to Outlines" href="index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -131,7 +131,7 @@
     <div class="bd-toc-item navbar-nav active">
         <ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">✨ Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="overview.html">🌎 Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">🌎 Hello world</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Outlines</span></p>
 <ul class="nav bd-sidenav">
@@ -268,7 +268,9 @@ document.write(`
   </button>
 `);
 </script>
-
+<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</label>
 </div></div>
       
     </div>
@@ -284,6 +286,16 @@ document.write(`
     <div id="print-main-content">
         <div id="jb-print-toc">
             
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#openai">OpenAI</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#huggingface">HuggingFace</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#other-integrations">Other integrations</a></li>
+</ul>
+            </nav>
         </div>
     </div>
 </div>
@@ -295,6 +307,46 @@ document.write(`
                   
   <section id="installation">
 <h1>✨ Installation<a class="headerlink" href="#installation" title="Permalink to this heading">#</a></h1>
+<p>The latest version of outlines is available on PyPi:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>outlines
+</pre></div>
+</div>
+<p>Outlines comes with a minimal set of dependencies that are necessary to run the library’s code. Integrations will require you to install dependencies manually.</p>
+<section id="openai">
+<h2>OpenAI<a class="headerlink" href="#openai" title="Permalink to this heading">#</a></h2>
+<p>To use OpenAI models you first have to run:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>openai<span class="w"> </span>tiktoken
+</pre></div>
+</div>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>You also need to set your API credentials by defining the <code class="docutils literal notranslate"><span class="pre">OPENAI_API_KEY</span></code> environment variable.</p>
+</div>
+</section>
+<section id="huggingface">
+<h2>HuggingFace<a class="headerlink" href="#huggingface" title="Permalink to this heading">#</a></h2>
+<p>To use the integrations with HuggingFace’s <a class="reference external" href="https://huggingface.co/docs/transformers/index">transformers</a> and <a class="reference external" href="https://huggingface.co/docs/diffusers/index">diffusers</a> libraries you first need to run:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">torch</span> <span class="n">transformers</span> <span class="n">diffusers</span>
+</pre></div>
+</div>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>HuggingFace models are run locally. Outlines uses the <a class="reference external" href="https://pytorch.org/">PyTorch</a> versions of the models. Please refer to the <a class="reference external" href="https://pytorch.org/get-started/locally/">PyTorch documentation</a> for questions related to <strong>GPU support</strong>.</p>
+</div>
+<p>The integration is fairly basic for now, and if you have specific performance needs please <a class="reference external" href="https://github.com/normal-computing/outlines/issues">open an issue</a></p>
+</section>
+<section id="other-integrations">
+<h2>Other integrations<a class="headerlink" href="#other-integrations" title="Permalink to this heading">#</a></h2>
+<p>Outlines is designed to be fully compatible with other libraries, which you will need to install separately. You can use any library with Outlines but , whenever possible, we recommend to use libraries with async support for better performance. Examples of possible integrations are:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/jerryjliu/llama_index">Llama index</a> for vector stores and document querying;</p></li>
+<li><p><a class="reference external" href="https://discordpy.readthedocs.io/en/stable/index.html">discord.py</a> for Discord integration;</p></li>
+<li><p><a class="reference external" href="https://slack.dev/python-slack-sdk/">Slack SDK</a> for Slack integration;</p></li>
+<li><p><a class="reference external" href="https://github.com/Tinche/aiofiles">aiofiles</a> for asynchronous file operations;</p></li>
+<li><p><a class="reference external" href="https://www.python-httpx.org/async/">httpx</a> or <a class="reference external" href="https://github.com/aio-libs/aiohttp">aiohttp</a> for asynchronous HTTP requests;</p></li>
+<li><p><a class="reference external" href="https://github.com/MagicStack/asyncpg">asyncpg</a> and <a class="reference external" href="https://github.com/omnilib/aiosqlite">aiosqlite</a> for async PostgreSQL and SQLite interfaces.</p></li>
+</ul>
+</section>
 </section>
 
 
@@ -323,7 +375,7 @@ document.write(`
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">🌎 Overview</p>
+        <p class="prev-next-title">🌎 Hello world</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -336,6 +388,22 @@ document.write(`
             </div>
             
             
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#openai">OpenAI</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#huggingface">HuggingFace</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#other-integrations">Other integrations</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
               
             
           </div>
