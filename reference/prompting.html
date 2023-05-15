@@ -268,7 +268,9 @@ document.write(`
   </button>
 `);
 </script>
-
+<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</label>
 </div></div>
       
     </div>
@@ -284,6 +286,15 @@ document.write(`
     <div id="print-main-content">
         <div id="jb-print-toc">
             
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#calling-tools">Calling tools</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#specify-a-response-format">Specify a response format</a></li>
+</ul>
+            </nav>
         </div>
     </div>
 </div>
@@ -295,8 +306,21 @@ document.write(`
                   
   <section id="prompting">
 <h1>Prompting<a class="headerlink" href="#prompting" title="Permalink to this heading">#</a></h1>
-<p>Outlines provides a powerful domain-specific language to write and manage prompts, via what we call <em>prompt functions</em>. Prompt functions are Python functions that contain the prompt in their docstring; their arguments correspond to the variables used in the prompt. We use the Jinja library to render the prompts, with a few tweaks to make the prompt writing experience nicer.</p>
-<p>One thus doesn’t need extra abstraction to write a prompt with few-shot examples, Jinja can handle that:</p>
+<p>Outlines provides a powerful domain-specific language to write and manage prompts, via what we call <em>prompt functions</em>. Prompt functions are Python functions that contain a template for the prompt in their docstring, and their arguments correspond to the variables used in the prompt. When called, a prompt function returns the template rendered with the values of the arguments:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">outlines.text</span> <span class="k">as</span> <span class="nn">text</span>
+
+<span class="nd">@text</span><span class="o">.</span><span class="n">prompt</span>
+<span class="k">def</span> <span class="nf">greetings</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">question</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Hello, {{ name }}!</span>
+<span class="sd">    {{ question }}</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+ <span class="n">prompt</span> <span class="o">=</span> <span class="n">greetings</span><span class="p">(</span><span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;How are you?&quot;</span><span class="p">)</span>
+ <span class="c1"># Hello, user!</span>
+ <span class="c1"># How are you?</span>
+</pre></div>
+</div>
+<p>Outlines uses the <a class="reference external" href="https://jinja.palletsprojects.com/en/3.1.x/">Jinja templating engine</a> to render prompts, which allows to easily compose complex prompts. No need for extra abstractions to write a prompt with few-shot examples, Jinja can handle that:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">outlines.text</span> <span class="k">as</span> <span class="nn">text</span>
 
 <span class="nd">@text</span><span class="o">.</span><span class="n">prompt</span>
@@ -313,11 +337,10 @@ document.write(`
  <span class="n">prompt</span> <span class="o">=</span> <span class="n">few_shots</span><span class="p">(</span><span class="n">question</span><span class="p">,</span> <span class="n">examples</span><span class="p">,</span> <span class="n">question</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>The original template is still accessible by calling:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">prompt</span><span class="o">.</span><span class="n">template</span>
-</pre></div>
-</div>
-<p>Outlines also provides a few utilities to simplify workflows that connect tools to LLMs (Toolformer, ViperGPT, AutoGPT). We noticed that the same information was always repeated: once when implementing the function, the second time when writing the instructions in the prompt. No need to do this with Outlines, information can be directly pulled from the function definition:</p>
+<p>Please refer to the <a class="reference external" href="https://jinja.palletsprojects.com/en/3.1.x/">Jinja documentation</a> for more information about the syntax of the templating language. The Jinja syntax is powerful, and we recommend you take some time to read their documentation if building your prompts requires complex logic involving for instance loops and conditionals.</p>
+<section id="calling-tools">
+<h2>Calling tools<a class="headerlink" href="#calling-tools" title="Permalink to this heading">#</a></h2>
+<p>Several projects (e.g.`Toolformer &lt;<a class="reference external" href="https://arxiv.org/abs/2302.04761">https://arxiv.org/abs/2302.04761</a>&gt;`_, <a class="reference external" href="https://viper.cs.columbia.edu/">ViperGPT</a>, <a class="reference external" href="https://github.com/Significant-Gravitas/Auto-GPT">AutoGPT</a>, etc.) have shown that we can “teach” language models to use external functions by describing what these functions do in the prompt. In these projects the same information is often repeated twice: the function implementation, name, docstring, or arguments are copy-pasted in the prompt. This is cumbersome and error prone; you can directly pull this information from within an Outlines prompt function:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">outlines.text</span> <span class="k">as</span> <span class="nn">text</span>
 
 <span class="k">def</span> <span class="nf">my_tool</span><span class="p">(</span><span class="n">arg1</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">arg2</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
@@ -336,23 +359,57 @@ document.write(`
 
 <span class="sd">   {{ tool | source }}</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
+ <span class="n">tool_prompt</span><span class="p">(</span><span class="s2">&quot;Can you do something?&quot;</span><span class="p">,</span> <span class="n">my_tool</span><span class="p">)</span>
+ <span class="c1"># Can you do something?</span>
+ <span class="c1">#</span>
+ <span class="c1"># COMMANDS</span>
+ <span class="c1"># 1. my_tool: Tool description, args: arg1:str, arg2:int</span>
+ <span class="c1">#</span>
+ <span class="c1"># def my_tool(arg1: str, arg2: int):</span>
+ <span class="c1">#     &quot;&quot;&quot;Tool description.</span>
+ <span class="c1">#</span>
+ <span class="c1">#     The rest of the docstring</span>
+ <span class="c1">#     &quot;&quot;&quot;</span>
+ <span class="c1">#     pass</span>
 </pre></div>
 </div>
-<p>The same goes for output validation: the code is implemented once when defining the parser, a second time when passing the format to the prompt:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">BaseModel</span>
+</section>
+<section id="specify-a-response-format">
+<h2>Specify a response format<a class="headerlink" href="#specify-a-response-format" title="Permalink to this heading">#</a></h2>
+<p>To build reliable chains with language models we often need to instruct them the format in which we would like them to return their response. Again the information is often repeated twice between creating the parsing function, and writing the desired schema in the prompt. You can directly pull the JSON schema of a pydantic model, or pretty print a dictionary from within an Outlines prompt function</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">Field</span>
 
 <span class="kn">import</span> <span class="nn">outlines.text</span> <span class="k">as</span> <span class="nn">text</span>
 
 <span class="k">class</span> <span class="nc">MyResponse</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-    <span class="n">field1</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">field1</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;an int&quot;</span><span class="p">)</span>
     <span class="n">field2</span><span class="p">:</span> <span class="nb">str</span>
 
 <span class="nd">@text</span><span class="o">.</span><span class="n">prompt</span>
 <span class="k">def</span> <span class="nf">my_prompt</span><span class="p">(</span><span class="n">response_model</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;{{ response_model | schema }}&quot;&quot;&quot;</span>
+
+<span class="n">my_prompt</span><span class="p">(</span><span class="n">MyResponse</span><span class="p">)</span>
+<span class="c1"># {</span>
+<span class="c1">#   &quot;field1&quot;: &quot;an int&quot;,</span>
+<span class="c1">#   &quot;field2&quot;: &quot;&lt;field2&gt;&quot;</span>
+<span class="c1"># }</span>
 </pre></div>
 </div>
-<p>Please refer to the <a class="reference external" href="https://jinja.palletsprojects.com/en/3.1.x/">Jinja documentation</a> for more information about the syntax of the templating language.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">response</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;field1&quot;</span><span class="p">:</span> <span class="s2">&quot;&lt;field1&gt;&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;field2&quot;</span><span class="p">:</span> <span class="s2">&quot;a string&quot;</span>
+<span class="p">}</span>
+
+<span class="n">my_prompt</span><span class="p">(</span><span class="n">MyResponse</span><span class="p">)</span>
+<span class="c1"># {</span>
+<span class="c1">#   &quot;field1&quot;: &quot;&lt;field1&gt;&quot;,</span>
+<span class="c1">#   &quot;field2&quot;: &quot;a string&quot;</span>
+<span class="c1"># }</span>
+</pre></div>
+</div>
+</section>
 </section>
 
 
@@ -394,6 +451,21 @@ document.write(`
             </div>
             
             
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#calling-tools">Calling tools</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#specify-a-response-format">Specify a response format</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
               
             
           </div>
