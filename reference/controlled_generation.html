@@ -138,13 +138,7 @@
 <li class="toctree-l1"><a class="reference internal" href="prompting.html">Prompting</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Controlled Generation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="multimodel.html">Multimodal, Multimodels</a></li>
-<li class="toctree-l1"><a class="reference internal" href="batching.html">Batching</a></li>
-</ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Integrations</span></p>
-<ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="../integrations/python.html">🐍 Python code</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../integrations/llamaindex.html">🦙 Llamaindex</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../integrations/messaging.html">✉ Slack, Discord, Twitter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="batching.html">Sampling</a></li>
 </ul>
 
     </div>
@@ -268,7 +262,9 @@ document.write(`
   </button>
 `);
 </script>
-
+<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</label>
 </div></div>
       
     </div>
@@ -284,6 +280,17 @@ document.write(`
     <div id="print-main-content">
         <div id="jb-print-toc">
             
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#stopping-sequence">Stopping sequence</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#choice-between-different-options">Choice between different options</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#type-constraints">Type constraints</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-future-of-constrained-generation">The future of constrained generation</a></li>
+</ul>
+            </nav>
         </div>
     </div>
 </div>
@@ -295,6 +302,62 @@ document.write(`
                   
   <section id="controlled-generation">
 <h1>Controlled Generation<a class="headerlink" href="#controlled-generation" title="Permalink to this heading">#</a></h1>
+<p>While LLM capabilities are increasingly impressive, we can make their output more reliable by <em>steering</em> the generation. Outlines thus offers mechanisms to specify high level constraints on text completions by generative language models.</p>
+<section id="stopping-sequence">
+<h2>Stopping sequence<a class="headerlink" href="#stopping-sequence" title="Permalink to this heading">#</a></h2>
+<p>By default, language models stop generating tokens after and <cite>&lt;EOS&gt;</cite> token was generated, or after a set maximum number of tokens. Their output can be verbose, and for practical purposes it is often necessary to stop the generation after a given sequence has been found instead. You can use the <cite>stop_at</cite> keyword argument when calling the model with a prompt:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">outlines.models</span> <span class="k">as</span> <span class="nn">models</span>
+
+<span class="n">complete</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">text_completion</span><span class="o">.</span><span class="n">openai</span><span class="p">(</span><span class="s2">&quot;text-davinci-002&quot;</span><span class="p">)</span>
+<span class="n">expert</span> <span class="o">=</span> <span class="n">complete</span><span class="p">(</span><span class="s2">&quot;Name an expert in quantum gravity.&quot;</span><span class="p">,</span> <span class="n">stop_at</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;.&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The OpenAI API does not allow more than 4 stopping sequences.</p>
+</div>
+</section>
+<section id="choice-between-different-options">
+<h2>Choice between different options<a class="headerlink" href="#choice-between-different-options" title="Permalink to this heading">#</a></h2>
+<p>In some cases we know the output is to be chosen between different options. We can restrict the completion’s output to these choices using the <cite>is_in</cite> keyword argument:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">outlines.models</span> <span class="k">as</span> <span class="nn">models</span>
+
+<span class="n">complete</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">text_completion</span><span class="o">.</span><span class="n">openai</span><span class="p">(</span><span class="s2">&quot;text-davinci-002&quot;</span><span class="p">)</span>
+<span class="n">answer</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span>
+    <span class="s2">&quot;Pick the odd word out: skirt, dress, pen, jacket&quot;</span><span class="p">,</span>
+    <span class="n">is_in</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;skirt&quot;</span><span class="p">,</span> <span class="s2">&quot;dress&quot;</span><span class="p">,</span> <span class="s2">&quot;pen&quot;</span><span class="p">,</span> <span class="s2">&quot;jacket&quot;</span><span class="p">]</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="type-constraints">
+<h2>Type constraints<a class="headerlink" href="#type-constraints" title="Permalink to this heading">#</a></h2>
+<p>We can ask completions to be restricted to <cite>int`s or `float`s using the `type</cite> keyword argument, respectively with the “int” or “float” value:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">outlines.models</span> <span class="k">as</span> <span class="nn">models</span>
+
+<span class="n">complete</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">text_completion</span><span class="o">.</span><span class="n">openai</span><span class="p">(</span><span class="s2">&quot;text-davinci-002&quot;</span><span class="p">)</span>
+<span class="n">answer</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span>
+    <span class="s2">&quot;When I was 6 my sister was half my age. Now I’m 70 how old is my sister?&quot;</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;int&quot;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This feature is very limited for OpenAI models, due to restrictions on OpenAI’s API.</p>
+</div>
+</section>
+<section id="the-future-of-constrained-generation">
+<h2>The future of constrained generation<a class="headerlink" href="#the-future-of-constrained-generation" title="Permalink to this heading">#</a></h2>
+<p>We believe constrained hold a lot of promises when it comes to build reliable systems that use language models. In future releases of Outlines, you will be able to:</p>
+<ul class="simple">
+<li><p>Exclude sequences with a <cite>not_in</cite> keyword agument;</p></li>
+<li><p>Constrain the output to be valid JSON;</p></li>
+<li><p>Constrain the output to be a valid array;</p></li>
+<li><p>Constrain the output to be valid Python code;</p></li>
+</ul>
+<p>We also believe that <a class="reference external" href="https://www.alignmentforum.org/posts/5spBue2z2tw4JuDCx/steering-gpt-2-xl-by-adding-an-activation-vector">alternative steering methods</a> can be useful and plan on expanding Outline’s prompt DSL and generation methods in this direction.</p>
+</section>
 </section>
 
 
@@ -336,6 +399,23 @@ document.write(`
             </div>
             
             
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#stopping-sequence">Stopping sequence</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#choice-between-different-options">Choice between different options</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#type-constraints">Type constraints</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-future-of-constrained-generation">The future of constrained generation</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
               
             
           </div>

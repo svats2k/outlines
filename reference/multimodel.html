@@ -45,7 +45,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'reference/multimodel';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Batching" href="batching.html" />
+    <link rel="next" title="Sampling" href="batching.html" />
     <link rel="prev" title="Controlled Generation" href="controlled_generation.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -138,13 +138,7 @@
 <li class="toctree-l1"><a class="reference internal" href="prompting.html">Prompting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="controlled_generation.html">Controlled Generation</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Multimodal, Multimodels</a></li>
-<li class="toctree-l1"><a class="reference internal" href="batching.html">Batching</a></li>
-</ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Integrations</span></p>
-<ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="../integrations/python.html">🐍 Python code</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../integrations/llamaindex.html">🦙 Llamaindex</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../integrations/messaging.html">✉ Slack, Discord, Twitter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="batching.html">Sampling</a></li>
 </ul>
 
     </div>
@@ -268,7 +262,9 @@ document.write(`
   </button>
 `);
 </script>
-
+<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</label>
 </div></div>
       
     </div>
@@ -284,6 +280,17 @@ document.write(`
     <div id="print-main-content">
         <div id="jb-print-toc">
             
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#openai">OpenAI</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#huggingface">HuggingFace</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bring-your-own-model">Bring Your Own Model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#coming-soon">Coming soon</a></li>
+</ul>
+            </nav>
         </div>
     </div>
 </div>
@@ -295,6 +302,59 @@ document.write(`
                   
   <section id="multimodal-multimodels">
 <h1>Multimodal, Multimodels<a class="headerlink" href="#multimodal-multimodels" title="Permalink to this heading">#</a></h1>
+<p>Outlines interfaces with multiple model providers, so models can be easily swapped. It is built so that different models can be chained together, with different modalities.</p>
+<section id="openai">
+<h2>OpenAI<a class="headerlink" href="#openai" title="Permalink to this heading">#</a></h2>
+<p>Outlines connects to OpenAI’s text completion, and chat completion. Note however that Outlines does not provide a chat interface, and uses the chat completion API for text completion. Both are accessible via the <cite>models.text_completion.openai</cite> module, by passing the name of the model. You can currently specify <cite>max_tokens</cite> and <cite>temperature</cite> when initializing the model:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">outlines.models</span> <span class="k">as</span> <span class="nn">models</span>
+
+<span class="n">complete</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">text_completion</span><span class="o">.</span><span class="n">openai</span><span class="p">(</span><span class="s2">&quot;gpt4&quot;</span><span class="p">,</span> <span class="n">max_tokens</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>It is also possible to use DALL-E to generate images:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">outlines.models</span> <span class="k">as</span> <span class="nn">models</span>
+
+<span class="n">generate</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">image_generation</span><span class="o">.</span><span class="n">openai</span><span class="p">(</span><span class="s2">&quot;dall-e&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="huggingface">
+<h2>HuggingFace<a class="headerlink" href="#huggingface" title="Permalink to this heading">#</a></h2>
+<p>Outlines can call models from HuggingFace’s <cite>transformers</cite> and <cite>diffusers</cite> libraries. The models are then run locally.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">outlines.models</span> <span class="k">as</span> <span class="nn">models</span>
+
+<span class="n">complete</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">text_completion</span><span class="o">.</span><span class="n">hf</span><span class="p">(</span><span class="s2">&quot;sshleifer/tiny-gpt2&quot;</span><span class="p">)</span>
+<span class="n">generate</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">image_generation</span><span class="o">.</span><span class="n">hf</span><span class="p">(</span><span class="s2">&quot;runwayml/stable-diffusion-v1-5&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Outlines call the PyTorch version of models by default. The generation process also runs with defaults, please <a class="reference external" href="https://github.com/normal-computing/outlines/issues">open an issue</a> if you have more specific needs.</p>
+</div>
+</section>
+<section id="bring-your-own-model">
+<h2>Bring Your Own Model<a class="headerlink" href="#bring-your-own-model" title="Permalink to this heading">#</a></h2>
+<p>Outlines models are currently simple functions that return a text or an image given a prompt, you can thus easily use any model. We will soon provide a more comprehensive integration that handles controlled generation for any model.</p>
+<p>If you think the model you are using could be useful to others, <a class="reference external" href="https://github.com/normal-computing/outlines/issues">open an issue</a> 😊</p>
+</section>
+<section id="coming-soon">
+<h2>Coming soon<a class="headerlink" href="#coming-soon" title="Permalink to this heading">#</a></h2>
+<p>We plan on integrating more model providers, for instance:</p>
+<ul class="simple">
+<li><p>Anthropic</p></li>
+<li><p>Llamacpp</p></li>
+<li><p>GPT4All</p></li>
+</ul>
+<p>We currently favor the integration of <em>Open Source models</em> since they give more freedom for guided generation. We will also extend the range of models to allow building more complex chains, including:</p>
+<ul class="simple">
+<li><p>Image captioning;</p></li>
+<li><p>Classification;</p></li>
+<li><p>Image segmentation;</p></li>
+<li><p>Speech-to-text;</p></li>
+<li><p>Image question answering;</p></li>
+<li><p>etc.</p></li>
+</ul>
+</section>
 </section>
 
 
@@ -323,7 +383,7 @@ document.write(`
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Batching</p>
+        <p class="prev-next-title">Sampling</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -336,6 +396,23 @@ document.write(`
             </div>
             
             
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#openai">OpenAI</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#huggingface">HuggingFace</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bring-your-own-model">Bring Your Own Model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#coming-soon">Coming soon</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
               
             
           </div>

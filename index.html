@@ -137,13 +137,7 @@
 <li class="toctree-l1"><a class="reference internal" href="reference/prompting.html">Prompting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="reference/controlled_generation.html">Controlled Generation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="reference/multimodel.html">Multimodal, Multimodels</a></li>
-<li class="toctree-l1"><a class="reference internal" href="reference/batching.html">Batching</a></li>
-</ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Integrations</span></p>
-<ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="integrations/python.html">🐍 Python code</a></li>
-<li class="toctree-l1"><a class="reference internal" href="integrations/llamaindex.html">🦙 Llamaindex</a></li>
-<li class="toctree-l1"><a class="reference internal" href="integrations/messaging.html">✉ Slack, Discord, Twitter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference/batching.html">Sampling</a></li>
 </ul>
 
     </div>
@@ -308,6 +302,7 @@ document.write(`
   <section id="welcome-to-outlines">
 <h1>👋 Welcome to Outlines<a class="headerlink" href="#welcome-to-outlines" title="Permalink to this heading">#</a></h1>
 <p><strong>Outlines</strong> is a Python library to write reliable programs for interactions with generative models: language models, diffusers, multimodal models, classifiers, etc. It provides a Domain Specific Language (DSL) to make prompting easier, constrained text generation and is natively concurrent. It integrates well with the rest of the Python ecosystem: tools, vector stores, etc.</p>
+<p><em>Outlines aims to be the library frameworks are made with. It is more like NumPy than LangChain.</em></p>
 <div class="sd-container-fluid sd-sphinx-override sd-mb-4 docutils">
 <div class="sd-row sd-row-cols-2 sd-row-cols-xs-2 sd-row-cols-sm-2 sd-row-cols-md-2 sd-row-cols-lg-2 docutils">
 <div class="sd-col sd-d-flex-row sd-mt-4 sd-mb-4 sd-ml-auto sd-mr-auto docutils">
@@ -342,7 +337,7 @@ document.write(`
 <span class="kn">from</span> <span class="nn">my_response_models</span> <span class="kn">import</span> <span class="n">command_response</span>
 
 
-<span class="nd">@outlines</span><span class="o">.</span><span class="n">prompt</span>
+<span class="nd">@text</span><span class="o">.</span><span class="n">prompt</span>
 <span class="k">def</span> <span class="nf">agent_prompt</span><span class="p">(</span><span class="n">objective</span><span class="p">,</span> <span class="n">goals</span><span class="p">,</span> <span class="n">tools</span><span class="p">,</span> <span class="n">response_model</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;You are an AI with the following objective: {{ objective }}</span>
 
@@ -361,11 +356,10 @@ document.write(`
 <span class="sd">    &quot;&quot;&quot;</span>
 
 
-<span class="nd">@outlines</span><span class="o">.</span><span class="n">chain</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">agent</span><span class="p">(</span><span class="n">objective</span><span class="p">,</span> <span class="n">goals</span><span class="p">,</span> <span class="n">tools</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">agent</span><span class="p">(</span><span class="n">objective</span><span class="p">,</span> <span class="n">goals</span><span class="p">,</span> <span class="n">tools</span><span class="p">)</span>
    <span class="n">complete</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">text_completion</span><span class="o">.</span><span class="n">hf</span><span class="p">(</span><span class="s2">&quot;sshleifer/tiny-gpt2&quot;</span><span class="p">)</span>
    <span class="n">prompt</span> <span class="o">=</span> <span class="n">agent_prompt</span><span class="p">(</span><span class="n">objective</span><span class="p">,</span> <span class="n">goals</span><span class="p">,</span> <span class="n">tools</span> <span class="p">,</span> <span class="n">command_response</span><span class="p">)</span>
-   <span class="n">answer</span> <span class="o">=</span> <span class="k">await</span> <span class="n">complete</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span>
+   <span class="n">answer</span> <span class="o">=</span> <span class="n">complete</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span>
    <span class="n">command</span> <span class="o">=</span> <span class="n">command_response</span><span class="p">(</span><span class="n">answer</span><span class="p">)</span>
 
    <span class="k">return</span> <span class="n">command</span>
@@ -381,15 +375,19 @@ document.write(`
 </section>
 <section id="features">
 <h2>📜 Features<a class="headerlink" href="#features" title="Permalink to this heading">#</a></h2>
+<blockquote>
+<div><p>Simple and powerful prompting primitives based on the Jinja templating engine.
+Integration with OpenAI and HuggingFace models</p>
+</div></blockquote>
 <ul class="simple">
 <li><p>A powerful domain-specific language to write and render prompts;</p></li>
+<li><p>Interleave completions with loops, conditionals, and custom Python functions;</p></li>
 <li><p>OpenAI integration: language models, embeddings and Dall-E;</p></li>
 <li><p>HuggingFace integration: <code class="docutils literal notranslate"><span class="pre">transformers</span></code> and <code class="docutils literal notranslate"><span class="pre">diffusers</span></code>;</p></li>
-<li><p>Parallel model and tool calls with the <code class="docutils literal notranslate"><span class="pre">outlines.elemwise</span></code> decorator;</p></li>
-<li><p>Map your chains over different inputs in parallel to avoid overfitting;</p></li>
+<li><p>Caching;</p></li>
+<li><p>Sampling multiple sequences;</p></li>
+<li><p>Controlled generation, including multiple choice, type constraints and dynamic stopping.</p></li>
 </ul>
-<div class="toctree-wrapper compound">
-</div>
 <div class="toctree-wrapper compound">
 </div>
 <div class="toctree-wrapper compound">
