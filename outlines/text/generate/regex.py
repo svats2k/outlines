@@ -1,3 +1,4 @@
+import collections
 import math
 from typing import List, Optional, Tuple
 
@@ -38,19 +39,25 @@ class Regex(Continuation):
                 return False
             return True
 
-        pstate_to_vocab = map_partial_states_to_vocab(
+        pstate_to_vocab, paths = map_partial_states_to_vocab(
             list(sorted_vocabulary),
             {"REGEX": self.regex_fsm},
             partial_match_filter,
             final_state_string=model.tokenizer.eos_token,
         )
 
-        # TODO: This check might be a little too strict, because I think that
-        # while some states are made unreachable by a vocabulary (and will not
-        # be present in the following set difference), there could still be
-        # paths to terminal states emanating from the states that are reachable.
-        states_with_transition = {x[1] for x in pstate_to_vocab.keys()}
-        if len(self.regex_fsm.states.difference(states_with_transition)) > 0:
+        # Check whether a terminal path (from the initial state of the FSM to
+        # one of its terminal states) exists, raise an exception otherwise.
+        traversed_states = set()
+        queue = collections.deque([self.regex_fsm.initial])
+        while queue:
+            symbol = queue.popleft()
+            for prev_state in paths["REGEX"][symbol]:
+                if prev_state not in traversed_states:
+                    traversed_states.add(prev_state)
+                    queue.append(prev_state)
+
+        if traversed_states.intersection(self.regex_fsm.finals) == set():
             raise ValueError(
                 "The vocabulary does not allow us to build a sequence that matches the input regex"
             )
@@ -121,9 +128,7 @@ class Regex(Continuation):
         masks = []
         for pstate in self.pstates:
             mask = torch.full(
-                (len(self.model.tokenizer.vocabulary),),
-                -math.inf,
-                device=self.model.device,
+                (len(self.model.tokenizer.vocabulary),), -math.inf, device=self.device
             )
 
             if pstate[1] > -1:
@@ -193,3 +198,9 @@ def float(model, max_tokens: Optional[int] = None):
 
     """
     return Regex(model, r"([+-]?((0|[1-9]+)([.][0-9]*)?)|([.][0-9]+))", max_tokens)
+
+
+def choice(model, choices: List[str], max_tokens: Optional[int] = None):
+    """Choose between different sequences."""
+    regex_str = r"(" + r"|".join(choices) + r")"
+    return Regex(model, regex_str, max_tokens)
